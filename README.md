@@ -1,46 +1,311 @@
-# Getting Started with Create React App
+# React JSX/TSX Guide
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Naming conventions
++ Use PascalCase for Variable, Interfaces,  Type aliases
+  ```ruby
+  // Variable
+  const firstName = ""
+  const lastName = ""
+  
+  // Typescript interface
+  interface TodoItem {
+    id: number;
+    name: string;
+    value: string;
+  }
 
-## Available Scripts
+  // Typescript type alias
+  type TodoList = TodoItem[];
+  ```
+  
++ Folder/File Naming: Use camelCase for folder and non-component file names and PascalCase for component file names
+  ```ruby
+  src/utils/form.ts
+  src/hooks/useForm.ts
+  src/components/banners/edit/Form.tsx
+  ```
+  #### NOTED: hooks file should always start with "use..."
+  
++ Extensions: Use ``.js`` ``.jsx`` ``.tsx``  extension for React components.
 
-In the project directory, you can run:
++ Filename: Use PascalCase for filenames. E.g., ``ReservationCard.jsx``
+  ```ruby
+  // ❌
+  import reservationCard from './ReservationCard';
 
-### `yarn start`
+  // ✅
+  import ReservationCard from './ReservationCard';
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+  // ❌
+  const ReservationItem = <ReservationCard />;
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+  // ✅
+  const reservationItem = <ReservationCard />;
+  ```
 
-### `yarn test`
++ Component Naming: Use the filename as the component name. E.g. 
+  ``ReservationCard.jsx`` should have a reference name of ``ReservationCard``. However, for root components of a directory, 
+  use ``index.jsx`` as the filename and use the directory name as the component name:
+  ```ruby
+  // ❌
+  import Footer from './Footer/Footer';
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+  // ❌
+  import Footer from './Footer/index';
 
-### `yarn build`
+  // ✅
+  import Footer from './Footer';
+  ```
+  
++ Props Naming: Avoid using DOM component prop names for different purposes. E.g. style, className, onClick
+  ```ruby
+  // ❌
+  <MyComponent style="fancy" />
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+  // ❌
+  <MyComponent className="fancy" />
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+  // ✅
+  <MyComponent variant="fancy" />
+  ```
+  
+## Props
++ Always use camelCase for prop names.
+  ```ruby
+  // ❌
+  <Foo
+    UserName="hello"
+    phone_number={12345678}
+  />
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+  // ✅
+  <Foo
+    userName="hello"
+    phoneNumber={12345678}
+  />
+  ```
+  
++ Omit the value of the prop when it is explicitly true. ``eslint: react/jsx-boolean-value``
+  ```ruby
+  // ❌
+  <Foo
+    hidden={true}
+  />
 
-### `yarn eject`
+  // ✅
+  <Foo
+    hidden
+  />
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+  // ✅
+  <Foo hidden />
+  ```
+  
++ Always include an alt prop on ``<img>`` tags. If the image is presentational, alt can be an empty string or the ``<img>`` must have      ``role="presentation"``. ``eslint: jsx-a11y/alt-text``
+  ```ruby
+  // ❌
+  <img src="hello.jpg" />
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+  // ✅
+  <img src="hello.jpg" alt="Me waving hello" />
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+  // ✅
+  <img src="hello.jpg" alt="" />
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+  // ✅
+  <img src="hello.jpg" role="presentation" />
+  ```
+  
++ Do not use words like “image”, “photo”, or “picture” in ``<img>`` alt props. ``eslint: jsx-a11y/img-redundant-alt``
+  Why...? Screenreaders already announce ``img`` elements as images, so there is no need to include this information in the alt text.
+  ```ruby
+  // ❌
+  <img src="hello.jpg" alt="Picture of me waving hello" />
 
-## Learn More
+  // ✅
+  <img src="hello.jpg" alt="Me waving hello" />
+  ```
+  
++ Avoid using an array index as key prop, prefer a unique ID. [Why](https://robinpokorny.medium.com/index-as-a-key-is-an-anti-pattern-e0349aece318)
+  ```ruby
+  // ❌
+  {todos.map((todo, index) =>
+    <Todo
+      {...todo}
+      key={index}
+    />
+  )}
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+  // ✅
+  {todos.map(todo => (
+    <Todo
+      {...todo}
+      key={todo.id}
+    />
+  ))}
+  ```
+  
++ Prefer destructuring properties so it is clear what properties are used in the component.
+  ```ruby
+  // ❌
+  const Button = (props) => {
+    return <button>{props.text}</button>;
+  };
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+  // ✅
+  const Button = (props) => {
+    const { text } = props;
+
+    return <button>{text}</button>;
+  };
+
+  // ✅
+  const Button = ({ text }) => {
+    return <button>{text}</button>;
+  };
+  ```
+
++ Spreading objects with known, explicit props. This can be particularly useful when testing React components with Mocha’s beforeEach construct.
+  ```ruby
+  // ❌
+  const Menu = (props) => {
+    const { irrelevantProp, ...relevantProps  } = props;
+    return <WrappedComponent {...props} />
+  }
+  
+  // ✅
+  const Menu = (props) => {
+    const { irrelevantProp, ...relevantProps  } = props;
+    return <WrappedComponent {...relevantProps} />
+  }
+  ```
+  
+## PLACE_HOLDER
++ Separate function from the JSX if it takes more than 1 line
+  ```ruby
+  // ❌
+  <button
+    onClick={() => {
+      setState(!state);
+      resetForm();
+      reloadData();
+    }}
+  />
+
+  // ✅
+  <button onClick={() => setState(!state)} />
+
+  // ✅
+  const handleButtonClick = () => {
+    setState(!state);
+    resetForm();
+    reloadData();
+  }
+
+  <button onClick={handleButtonClick} />
+  ```
+
+## Component structure
+  ```ruby
+  // 1. Imports - Prefer destructuring imports to minimize writen code
+  import React, { PropsWithChildren, useState, useEffect } from "react";
+
+  // 2. Types
+  type ComponentProps = {
+    someProperty: string;
+  };
+
+  // 3. Styles - with @mui use styled API or sx prop of the component
+  const Wrapper = styled("div")(({ theme }) => ({
+    color: theme.palette.white
+  }));
+
+  // 4. Additional variables
+  const SOME_CONSTANT = "something";
+
+  // 5. Component
+  function Component({ someProperty }: PropsWithChildren<ComponentProps>) {
+  
+  // 5.1 Definitions
+    const [state, setState] = useState(true);
+    const { something } = useSomething();
+
+    // 5.2 Functions
+    function handleToggleState() {
+      setState(!state);
+    }
+
+    // 5.3 Effects
+    // ❌
+    React.useEffect(() => {
+      // ...
+    }, []);
+
+    // ✅
+    useEffect(() => {
+      // ...
+    }, []);
+
+    // 5.5 Additional destructures
+    const { property } = something;
+
+    return (
+      <div>
+        {/* Separate elements if not closed on the same line to make the code clearer */}
+        {/* ❌ */}
+        <div>
+          <div>
+            <p>Lorem ipsum</p>
+            <p>Pellentesque arcu</p>
+          </div>
+          <p>Lorem ipsum</p>
+          <p>Pellentesque arcu</p>
+        </div>
+        <div>
+          <p>
+            Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Pellentesque
+            arcu. Et harum quidem rerum facilis est et expedita distinctio.
+          </p>
+          <p>Pellentesque arcu</p>
+          <p>
+            Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Pellentesque
+            arcu. Et harum quidem rerum facilis est et expedita distinctio.
+          </p>
+        </div>
+
+        {/* ✅ */}
+        <Wrapper>
+          <div>
+            <p>Lorem ipsum</p>
+            <p>Pellentesque arcu</p>
+          </div>
+
+          <p>Lorem ipsum</p>
+          <p>Pellentesque arcu</p>
+        </Wrapper>
+
+        <div>
+          <div>
+            <p>
+              Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+              Pellentesque arcu. Et harum quidem rerum facilis est et expedita
+              distinctio.
+            </p>
+
+            <p>Pellentesque arcu</p>
+
+            <p>
+              Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+              Pellentesque arcu. Et harum quidem rerum facilis est et expedita
+              distinctio.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 6. Exports
+  export { Component };
+  export type { ComponentProps };
+  ```
