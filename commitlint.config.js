@@ -17,6 +17,8 @@ module.exports = {
     // Commit Body
     "body-leading-blank": [2, "always"],
     "body-max-line-length": [2, "always", 100],
+
+    // TODO setup commit. the below will throw back an error
     // Commit Footer
     // "footer-leading-blank": [2, "always"],
     // "footer-max-line-length": [2, "always", 100],
