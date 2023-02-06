@@ -310,3 +310,123 @@
   export { Component };
   export type { ComponentProps };
   ```
+  
+  ## Hooks
+  ```ruby
+  // ❌
+  const ScreenDimensions = () => {
+    const [windowSize, setWindowSize] = useState({
+      width: undefined,
+      height: undefined
+   });
+
+    useEffect(() => {
+      function handleResize() {
+        setWindowSize({
+          width: window.innerWidth,
+          height: window.innerHeight
+        });
+      }
+
+      window.addEventListener("resize", handleResize);
+      handleResize();
+  
+      return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    return (
+      <>
+        <p>Current screen width: {windowSize.width}</p>
+        <p>Current screen height: {windowSize.height}</p>
+      </>
+    );
+  };
+
+  // ✅
+  const useWindowSize = () => {
+    const [windowSize, setWindowSize] = useState({
+      width: undefined,
+      height: undefined
+    });
+
+    useEffect(() => {
+      function handleResize() {
+        setWindowSize({
+          width: window.innerWidth,
+          height: window.innerHeight
+        });
+      }
+
+      window.addEventListener("resize", handleResize);
+      handleResize();
+
+      return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    return windowSize;
+  };
+
+  const ScreenDimensions = () => {
+    const windowSize = useWindowSize();
+
+    return (
+      <>
+        <p>Current screen width: {windowSize.width}</p>
+        <p>Current screen height: {windowSize.height}</p>
+      </>
+    );
+  };
+  
+  ```
+  
+  ## Avoid using huge component
+  ```ruby
+  // ❌
+  const Section = ({ isEditable, value }) => {
+    if (isEditable) {
+      return (
+        <Section>
+          <Title>Edit this content</Title>
+          <Content>{value}</Content>
+          <Button>Clear content</Button>
+        </Section>
+      );
+    }
+
+    return (
+      <Section>
+        <Title>Read this content</Title>
+        <Content>{value}</Content>
+      </Section>
+    );
+  };
+  
+  // ✅
+  const EditableSection = ({ value }) => {
+    return (
+      <Section>
+        <Title>Edit this content</Title>
+        <Content>{value}</Content>
+        <Button>Clear content</Button>
+      </Section>
+    );
+  };
+
+  const DetailSection = ({ value }) => {
+    return (
+      <Section>
+        <Title>Read this content</Title>
+        <Content>{value}</Content>
+      </Section>
+    );  
+  };
+
+  const SomeSection = ({ isEditable, value }) => {
+    return isEditable ? (
+      <EditableSection value={value} />
+    ) : (
+      <DetailSection value={value} />
+    );
+  };
+  ```
+  
