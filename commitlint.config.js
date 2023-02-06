@@ -1,5 +1,6 @@
 module.exports = {
   extends: ["@commitlint/config-angular"],
+  ignores: [(message) => message.includes("WIP")],
   plugins: [
     {
       rules: {},
@@ -17,8 +18,7 @@ module.exports = {
     "body-leading-blank": [2, "always"],
     "body-max-line-length": [2, "always", 100],
     // Commit Footer
-    "issue-reference-in-footer": [2, "always"],
-    "footer-leading-blank": [2, "always"],
-    "footer-max-line-length": [2, "always", 100],
+    // "footer-leading-blank": [2, "always"],
+    // "footer-max-line-length": [2, "always", 100],
   },
 };
